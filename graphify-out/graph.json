@@ -4,76 +4,10 @@
   "graph": {},
   "nodes": [
     {
-      "id": "package_scripts",
-      "label": "scripts",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "NPM Scripts",
-      "file_type": "code",
-      "norm_label": "scripts",
-      "source_file": "package.json",
-      "source_location": "L3"
-    },
-    {
-      "id": "package_scripts_build",
-      "label": "build",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "NPM Scripts",
-      "file_type": "code",
-      "norm_label": "build",
-      "source_file": "package.json",
-      "source_location": "L4"
-    },
-    {
-      "id": "package_scripts_dev",
-      "label": "dev",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "NPM Scripts",
-      "file_type": "code",
-      "norm_label": "dev",
-      "source_file": "package.json",
-      "source_location": "L5"
-    },
-    {
-      "id": "package_scripts_generate",
-      "label": "generate",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "NPM Scripts",
-      "file_type": "code",
-      "norm_label": "generate",
-      "source_file": "package.json",
-      "source_location": "L6"
-    },
-    {
-      "id": "package_scripts_postinstall",
-      "label": "postinstall",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "NPM Scripts",
-      "file_type": "code",
-      "norm_label": "postinstall",
-      "source_file": "package.json",
-      "source_location": "L8"
-    },
-    {
-      "id": "package_scripts_preview",
-      "label": "preview",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "NPM Scripts",
-      "file_type": "code",
-      "norm_label": "preview",
-      "source_file": "package.json",
-      "source_location": "L7"
-    },
-    {
       "id": "package",
       "label": "package.json",
       "_origin": "ast",
-      "community": 1,
+      "community": 0,
       "community_name": "Package Dependencies",
       "file_type": "code",
       "norm_label": "package.json",
@@ -84,29 +18,51 @@
       "id": "package_devdependencies",
       "label": "devDependencies",
       "_origin": "ast",
-      "community": 1,
+      "community": 0,
       "community_name": "Package Dependencies",
       "file_type": "code",
       "norm_label": "devdependencies",
       "source_file": "package.json",
-      "source_location": "L10"
+      "source_location": "L13"
     },
     {
       "id": "package_devdependencies_nuxt",
       "label": "nuxt",
       "_origin": "ast",
-      "community": 1,
+      "community": 0,
       "community_name": "Package Dependencies",
       "file_type": "code",
       "norm_label": "nuxt",
       "source_file": "package.json",
-      "source_location": "L11"
+      "source_location": "L14"
+    },
+    {
+      "id": "package_engines",
+      "label": "engines",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Package Dependencies",
+      "file_type": "code",
+      "norm_label": "engines",
+      "source_file": "package.json",
+      "source_location": "L3"
+    },
+    {
+      "id": "package_engines_node",
+      "label": "node",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Package Dependencies",
+      "file_type": "code",
+      "norm_label": "node",
+      "source_file": "package.json",
+      "source_location": "L4"
     },
     {
       "id": "package_private",
       "label": "private",
       "_origin": "ast",
-      "community": 1,
+      "community": 0,
       "community_name": "Package Dependencies",
       "file_type": "code",
       "norm_label": "private",
@@ -117,12 +73,78 @@
       "id": "ref_nuxt",
       "label": "nuxt",
       "_origin": "ast",
-      "community": 1,
+      "community": 0,
       "community_name": "Package Dependencies",
       "file_type": "concept",
       "norm_label": "nuxt",
       "source_file": "package.json",
+      "source_location": "L14"
+    },
+    {
+      "id": "package_scripts",
+      "label": "scripts",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "NPM Scripts",
+      "file_type": "code",
+      "norm_label": "scripts",
+      "source_file": "package.json",
+      "source_location": "L6"
+    },
+    {
+      "id": "package_scripts_build",
+      "label": "build",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "NPM Scripts",
+      "file_type": "code",
+      "norm_label": "build",
+      "source_file": "package.json",
+      "source_location": "L7"
+    },
+    {
+      "id": "package_scripts_dev",
+      "label": "dev",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "NPM Scripts",
+      "file_type": "code",
+      "norm_label": "dev",
+      "source_file": "package.json",
+      "source_location": "L8"
+    },
+    {
+      "id": "package_scripts_generate",
+      "label": "generate",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "NPM Scripts",
+      "file_type": "code",
+      "norm_label": "generate",
+      "source_file": "package.json",
+      "source_location": "L9"
+    },
+    {
+      "id": "package_scripts_postinstall",
+      "label": "postinstall",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "NPM Scripts",
+      "file_type": "code",
+      "norm_label": "postinstall",
+      "source_file": "package.json",
       "source_location": "L11"
+    },
+    {
+      "id": "package_scripts_preview",
+      "label": "preview",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "NPM Scripts",
+      "file_type": "code",
+      "norm_label": "preview",
+      "source_file": "package.json",
+      "source_location": "L10"
     },
     {
       "id": "tsconfig",
@@ -182,6 +204,7 @@
     {
       "id": "readme_developmentserver",
       "label": "Nuxt Development Server",
+      "_origin": "semantic",
       "author": null,
       "captured_at": null,
       "community": 2,
@@ -196,6 +219,7 @@
     {
       "id": "readme_verceldeployment",
       "label": "Vercel Zero-Config Deployment",
+      "_origin": "semantic",
       "author": null,
       "captured_at": null,
       "community": 2,
@@ -210,6 +234,7 @@
     {
       "id": "readme_nuxtproject",
       "label": "Nuxt Example Project",
+      "_origin": "semantic",
       "author": null,
       "captured_at": null,
       "community": 2,
@@ -244,7 +269,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L11",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
@@ -255,7 +280,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L10",
+      "source_location": "L13",
       "weight": 1.0
     },
     {
@@ -271,7 +296,7 @@
     },
     {
       "source": "package",
-      "target": "package_scripts",
+      "target": "package_engines",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -281,8 +306,52 @@
       "weight": 1.0
     },
     {
+      "source": "package",
+      "target": "package_scripts",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "package.json",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
       "source": "package_devdependencies",
       "target": "package_devdependencies_nuxt",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "package.json",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "package_engines",
+      "target": "package_engines_node",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "package.json",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "package_scripts",
+      "target": "package_scripts_preview",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "package.json",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "package_scripts",
+      "target": "package_scripts_postinstall",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -299,7 +368,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L4",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -310,7 +379,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L5",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -321,29 +390,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L6",
-      "weight": 1.0
-    },
-    {
-      "source": "package_scripts",
-      "target": "package_scripts_preview",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "package.json",
-      "source_location": "L7",
-      "weight": 1.0
-    },
-    {
-      "source": "package_scripts",
-      "target": "package_scripts_postinstall",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "package.json",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -361,6 +408,7 @@
       "source": "readme_nuxtproject",
       "target": "readme_developmentserver",
       "relation": "conceptually_related_to",
+      "_origin": "semantic",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
@@ -371,6 +419,7 @@
       "source": "readme_nuxtproject",
       "target": "readme_verceldeployment",
       "relation": "conceptually_related_to",
+      "_origin": "semantic",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
@@ -379,5 +428,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "341e160cfa68b38ea5a5c1992b9610406756d854"
+  "built_at_commit": "5cd90319bc6e586763646ddb0d5e862aca624274"
 }
