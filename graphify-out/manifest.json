@@ -1,0 +1,32 @@
+{
+  "app.vue": {
+    "mtime": 1789920479.3405685,
+    "seen": 1789923159.6600611,
+    "ast_hash": "99f054a644c623cab4b93a4ac0ada060",
+    "semantic_hash": "99f054a644c623cab4b93a4ac0ada060"
+  },
+  "nuxt.config.ts": {
+    "mtime": 1789920479.3405685,
+    "seen": 1789923159.6600635,
+    "ast_hash": "cace7200b7bd01cf4de752c5b9b05a4d",
+    "semantic_hash": "cace7200b7bd01cf4de752c5b9b05a4d"
+  },
+  "package.json": {
+    "mtime": 1789924539.4417837,
+    "seen": 1789924591.8467395,
+    "ast_hash": "d950d6a6cd625ceb47321970e8c12e10",
+    "semantic_hash": "d950d6a6cd625ceb47321970e8c12e10"
+  },
+  "tsconfig.json": {
+    "mtime": 1789920479.3405685,
+    "seen": 1789923159.6600668,
+    "ast_hash": "1e6407b2a23222987ad9de7c95f0311f",
+    "semantic_hash": "1e6407b2a23222987ad9de7c95f0311f"
+  },
+  "README.md": {
+    "mtime": 1789920479.3405685,
+    "seen": 1789923159.660091,
+    "ast_hash": "cefb413100af137f48f24039bb7852f5",
+    "semantic_hash": "cefb413100af137f48f24039bb7852f5"
+  }
+}
