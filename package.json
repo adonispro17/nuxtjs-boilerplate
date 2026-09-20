@@ -7,7 +7,12 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dayjs": "^1.11.13"
+  },
   "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.12.2",
     "nuxt": "^3.0.0"
   }
 }

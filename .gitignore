@@ -93,3 +93,10 @@ sw.*
 
 # Vercel
 .vercel
+
+# Base de datos SQLite integrada (control de asistencia de enfermería)
+.data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
