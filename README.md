@@ -102,14 +102,50 @@ pages/
   reports/index.vue     # historial y exportación CSV
 ```
 
-## Notas de despliegue
+## Despliegue en un servidor real
 
 El preset de Nitro se configuró como `node-server` (variable
 `NITRO_PRESET`) porque la base de datos integrada y el webhook biométrico
-requieren un runtime Node persistente con acceso a disco; no es compatible
-con funciones "edge" (Vercel Edge, Cloudflare Workers, etc.).
+requieren un runtime Node persistente **con disco que no se borre entre
+reinicios**. Por eso **no sirve un hosting serverless/edge gratuito** (Vercel
+Edge, Cloudflare Workers) ni un plan "free" sin disco persistente: el
+archivo SQLite se perdería en cada reinicio o deploy.
+
+Incluye un `Dockerfile` listo para cualquier proveedor que soporte
+contenedores y disco persistente (Railway, Render, Fly.io, un VPS, etc.).
+
+### Opción recomendada: Railway
+
+1. Crea una cuenta en [railway.app](https://railway.app) y conecta tu GitHub.
+2. **New Project → Deploy from GitHub repo** y elige este repositorio (rama
+   `claude/exciting-hawking-th3xn5` o la que uses en producción). Railway
+   detecta el `Dockerfile` automáticamente.
+3. En el servicio creado, ve a **Settings → Volumes** y agrega un volumen
+   montado en `/data` (ahí vivirá el archivo de la base de datos).
+4. En **Variables**, agrega:
+   - `NURSE_ADMIN_PASSWORD` = una contraseña segura para el usuario `admin`
+     (si no la defines, queda `admin123`, cámbiala antes de usarlo en real).
+   - `NURSE_DB_PATH` ya viene fijada en `/data/nursing.db` desde el
+     `Dockerfile`; no hace falta tocarla salvo que quieras otra ruta.
+5. Railway asigna automáticamente un dominio público (`Settings → Networking
+   → Generate Domain`). ese es el link que le compartes al hospital.
+6. Antes de dar acceso al personal, entra tú primero con `admin` y la
+   contraseña que configuraste, ve a **Personal** y **Dispositivos
+   biométricos**, y reemplaza los datos de ejemplo por los reales.
+
+### Manual / VPS propio
+
+```bash
+docker build -t control-enfermeria .
+docker run -d -p 3000:3000 \
+  -v control-enfermeria-data:/data \
+  -e NURSE_ADMIN_PASSWORD="una-contraseña-segura" \
+  control-enfermeria
+```
+
+O sin Docker, directamente con Node 22.5+:
 
 ```bash
 npm run build
-node .output/server/index.mjs
+NURSE_DB_PATH=/ruta/persistente/nursing.db node .output/server/index.mjs
 ```
