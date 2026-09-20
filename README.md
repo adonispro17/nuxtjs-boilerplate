@@ -2,10 +2,11 @@
 
 Sistema para el área de enfermería de un hospital que registra la **hora de
 entrada y salida** del personal, con **integración a lectores biométricos**
-(huella/rostro) y una **base de datos integrada** (SQLite embebida, sin
-necesidad de instalar ni configurar un servidor de base de datos aparte).
+(huella/rostro) y una **base de datos** en Postgres (pensada para
+[Supabase](https://supabase.com), aunque funciona con cualquier Postgres).
 
-Construido sobre Nuxt 3 (Vue 3 + Nitro).
+Construido sobre Nuxt 3 (Vue 3 + Nitro), pensado para desplegarse en Vercel
+con Supabase como base de datos.
 
 ## Características
 
@@ -19,39 +20,73 @@ Construido sobre Nuxt 3 (Vue 3 + Nitro).
   única y expone un webhook para que el dispositivo reporte cada marcaje.
 - **Reportes**: historial filtrable por fecha/empleado, horas trabajadas y
   exportación a CSV.
-- **Base de datos integrada**: usa el módulo nativo `node:sqlite` de Node.js
-  (sin dependencias nativas que compilar). El archivo se crea solo la primera
-  vez que arranca el servidor.
+- **Base de datos en Postgres/Supabase**: las tablas se crean solas la
+  primera vez que arranca el servidor (no hay que correr migraciones a mano).
 
 ## Requisitos
 
-- Node.js 22.5 o superior (usa el módulo experimental `node:sqlite`).
+- Node.js 18.18 o superior.
+- Un proyecto de Postgres accesible por red (Supabase, o cualquier otro).
 
-## Instalación y arranque
+## 1. Crear la base de datos en Supabase
+
+1. Crea una cuenta y un proyecto en [supabase.com](https://supabase.com)
+   (plan gratuito es suficiente para empezar).
+2. Ve a **Project Settings → Database → Connection string** y copia la
+   cadena en modo **Transaction pooler** (puerto `6543`), algo como:
+   ```
+   postgresql://postgres.xxxxxxxxxxxx:[TU-PASSWORD]@aws-0-xxxx.pooler.supabase.com:6543/postgres
+   ```
+   Ese modo es el recomendado para apps serverless (Vercel); reemplaza
+   `[TU-PASSWORD]` por la contraseña de la base de datos que definiste al
+   crear el proyecto.
+
+No hace falta crear tablas manualmente: la app las crea solas (con datos de
+ejemplo) la primera vez que recibe una petición.
+
+## 2. Instalación y arranque local
 
 ```bash
 npm install
-npm run dev
+NUXT_DATABASE_URL="postgresql://...tu-cadena-de-supabase..." npm run dev
 ```
 
 Al iniciar por primera vez, el sistema crea automáticamente:
 
 - Un usuario administrador (`admin` / contraseña mostrada en la consola del
-  servidor, o la que definas en `NURSE_ADMIN_PASSWORD`).
+  servidor, o la que definas en `NUXT_SEED_ADMIN_PASSWORD`).
 - Un dispositivo biométrico de ejemplo con su `api_key` (se muestra en la
   consola del servidor).
 - Tres empleados de ejemplo con sus IDs biométricos (`BIO-0001`, `BIO-0002`,
   `BIO-0003`).
 
 **Importante:** cambia la contraseña del administrador en producción usando
-la variable de entorno `NURSE_ADMIN_PASSWORD` antes del primer arranque.
+la variable de entorno `NUXT_SEED_ADMIN_PASSWORD` antes del primer arranque.
 
 ## Variables de entorno
 
-| Variable               | Descripción                                          | Por defecto          |
-|-------------------------|-------------------------------------------------------|-----------------------|
-| `NURSE_DB_PATH`          | Ruta del archivo SQLite                                | `.data/nursing.db`   |
-| `NURSE_ADMIN_PASSWORD`   | Contraseña del usuario `admin` sembrado la primera vez | `admin123`            |
+Estas variables se leen **en tiempo de ejecución** (no al compilar), tal como
+lo espera Nuxt:
+
+| Variable                     | Descripción                                            | Por defecto |
+|-------------------------------|---------------------------------------------------------|-------------|
+| `NUXT_DATABASE_URL`           | Cadena de conexión a Postgres/Supabase                  | *(vacío, obligatorio)* |
+| `NUXT_DATABASE_SSL`           | Poner en `false` solo para un Postgres local sin TLS     | `true`      |
+| `NUXT_SEED_ADMIN_PASSWORD`    | Contraseña del usuario `admin` sembrado la primera vez   | `admin123`  |
+
+## 3. Desplegar en Vercel
+
+1. Entra a [vercel.com](https://vercel.com) → **Add New → Project** →
+   importa este repositorio de GitHub (rama `claude/exciting-hawking-th3xn5`
+   o la que uses en producción). Vercel detecta Nuxt automáticamente.
+2. En **Environment Variables**, agrega:
+   - `NUXT_DATABASE_URL` = la cadena de conexión de Supabase del paso 1.
+   - `NUXT_SEED_ADMIN_PASSWORD` = una contraseña segura para `admin`.
+3. Dale a **Deploy**. Vercel te da una URL pública (`tu-proyecto.vercel.app`)
+   — esa es la que le compartes al hospital.
+4. Entra tú primero con `admin` y la contraseña que configuraste, ve a
+   **Personal** y **Dispositivos biométricos**, y reemplaza los datos de
+   ejemplo por los reales antes de dar acceso al personal.
 
 ## Conectar un lector biométrico
 
@@ -83,7 +118,7 @@ Content-Type: application/json
 
 ```
 server/
-  utils/db.ts           # Conexión SQLite, esquema y datos de ejemplo
+  utils/db.ts           # Conexión Postgres (postgres.js), esquema y datos de ejemplo
   utils/auth.ts         # Hash de contraseñas, sesiones
   utils/attendance.ts   # Lógica de entrada/salida (manual y biométrica)
   middleware/session.ts # Protege /api/* y adjunta el usuario autenticado
@@ -102,50 +137,28 @@ pages/
   reports/index.vue     # historial y exportación CSV
 ```
 
-## Despliegue en un servidor real
+## Otras formas de desplegarlo
 
-El preset de Nitro se configuró como `node-server` (variable
-`NITRO_PRESET`) porque la base de datos integrada y el webhook biométrico
-requieren un runtime Node persistente **con disco que no se borre entre
-reinicios**. Por eso **no sirve un hosting serverless/edge gratuito** (Vercel
-Edge, Cloudflare Workers) ni un plan "free" sin disco persistente: el
-archivo SQLite se perdería en cada reinicio o deploy.
-
-Incluye un `Dockerfile` listo para cualquier proveedor que soporte
-contenedores y disco persistente (Railway, Render, Fly.io, un VPS, etc.).
-
-### Opción recomendada: Railway
-
-1. Crea una cuenta en [railway.app](https://railway.app) y conecta tu GitHub.
-2. **New Project → Deploy from GitHub repo** y elige este repositorio (rama
-   `claude/exciting-hawking-th3xn5` o la que uses en producción). Railway
-   detecta el `Dockerfile` automáticamente.
-3. En el servicio creado, ve a **Settings → Volumes** y agrega un volumen
-   montado en `/data` (ahí vivirá el archivo de la base de datos).
-4. En **Variables**, agrega:
-   - `NURSE_ADMIN_PASSWORD` = una contraseña segura para el usuario `admin`
-     (si no la defines, queda `admin123`, cámbiala antes de usarlo en real).
-   - `NURSE_DB_PATH` ya viene fijada en `/data/nursing.db` desde el
-     `Dockerfile`; no hace falta tocarla salvo que quieras otra ruta.
-5. Railway asigna automáticamente un dominio público (`Settings → Networking
-   → Generate Domain`). ese es el link que le compartes al hospital.
-6. Antes de dar acceso al personal, entra tú primero con `admin` y la
-   contraseña que configuraste, ve a **Personal** y **Dispositivos
-   biométricos**, y reemplaza los datos de ejemplo por los reales.
-
-### Manual / VPS propio
+Además de Vercel, incluye un `Dockerfile` que sirve para cualquier proveedor
+de contenedores (Railway, Render, Fly.io, un VPS propio, etc.), siempre
+apuntando `NUXT_DATABASE_URL` a tu proyecto de Supabase (o cualquier otro
+Postgres):
 
 ```bash
 docker build -t control-enfermeria .
 docker run -d -p 3000:3000 \
-  -v control-enfermeria-data:/data \
-  -e NURSE_ADMIN_PASSWORD="una-contraseña-segura" \
+  -e NUXT_DATABASE_URL="postgresql://...tu-cadena-de-supabase..." \
+  -e NUXT_SEED_ADMIN_PASSWORD="una-contraseña-segura" \
   control-enfermeria
 ```
 
-O sin Docker, directamente con Node 22.5+:
+O sin Docker, directamente con Node:
 
 ```bash
 npm run build
-NURSE_DB_PATH=/ruta/persistente/nursing.db node .output/server/index.mjs
+NUXT_DATABASE_URL="postgresql://..." node .output/server/index.mjs
 ```
+
+Como la base de datos ya no vive en un archivo local sino en Postgres, no
+necesitas disco persistente en el servidor de la app — cualquier hosting
+(incluido uno serverless) funciona.

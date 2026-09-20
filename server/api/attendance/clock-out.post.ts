@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'employeeId es requerido' });
   }
 
-  const result = registerAttendanceEvent({
+  const result = await registerAttendanceEvent({
     employeeId: body.employeeId,
     source: 'manual',
     type: 'out',

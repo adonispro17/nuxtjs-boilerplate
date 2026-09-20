@@ -5,11 +5,11 @@ const PUBLIC_API_PATHS = [
   '/api/biometric/webhook',
 ];
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const path = event.path || event.node.req.url || '';
 
   const token = getCookie(event, SESSION_COOKIE);
-  const user = getUserBySession(token);
+  const user = await getUserBySession(token);
   if (user) {
     event.context.user = user;
   }

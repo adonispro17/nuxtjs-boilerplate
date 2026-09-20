@@ -1,7 +1,7 @@
 {
   "private": true,
   "engines": {
-    "node": ">=22.5.0"
+    "node": ">=18.18.0"
   },
   "scripts": {
     "build": "nuxt build",
@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "dayjs": "^1.11.13"
+    "dayjs": "^1.11.13",
+    "postgres": "^3.4.9"
   },
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.12.2",

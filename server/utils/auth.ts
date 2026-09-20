@@ -20,41 +20,35 @@ export function verifyPassword(password: string, hash: string): boolean {
   return bcrypt.compareSync(password, hash);
 }
 
-export function createSession(userId: string): { token: string; expiresAt: string } {
-  const db = getDb();
+export async function createSession(userId: string): Promise<{ token: string; expiresAt: string }> {
+  const db = await getDb();
   const token = newId() + newId();
   const expiresAt = new Date(Date.now() + SESSION_TTL_HOURS * 60 * 60 * 1000).toISOString();
-  db.prepare('INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)').run(
-    token,
-    userId,
-    expiresAt
-  );
+  await db`INSERT INTO sessions (token, user_id, expires_at) VALUES (${token}, ${userId}, ${expiresAt})`;
   return { token, expiresAt };
 }
 
-export function destroySession(token: string) {
-  const db = getDb();
-  db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
+export async function destroySession(token: string) {
+  const db = await getDb();
+  await db`DELETE FROM sessions WHERE token = ${token}`;
 }
 
-export function getUserBySession(token: string | undefined): SessionUser | null {
+export async function getUserBySession(token: string | undefined): Promise<SessionUser | null> {
   if (!token) return null;
-  const db = getDb();
+  const db = await getDb();
 
-  const row = db
-    .prepare(
-      `SELECT u.id, u.username, u.role, u.employee_id as employeeId, s.expires_at as expiresAt
-       FROM sessions s JOIN users u ON u.id = s.user_id
-       WHERE s.token = ?`
-    )
-    .get(token) as
-    | { id: string; username: string; role: string; employeeId: string | null; expiresAt: string }
-    | undefined;
-
+  const rows = await db<
+    { id: string; username: string; role: string; employeeId: string | null; expiresAt: string }[]
+  >`
+    SELECT u.id, u.username, u.role, u.employee_id, s.expires_at
+    FROM sessions s JOIN users u ON u.id = s.user_id
+    WHERE s.token = ${token}
+  `;
+  const row = rows[0];
   if (!row) return null;
 
   if (new Date(row.expiresAt).getTime() < Date.now()) {
-    db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
+    await db`DELETE FROM sessions WHERE token = ${token}`;
     return null;
   }
 
@@ -82,14 +76,15 @@ export function requireAdmin(event: H3Event): SessionUser {
   return user;
 }
 
-export function verifyDeviceApiKey(apiKey: string | undefined) {
+export async function verifyDeviceApiKey(apiKey: string | undefined) {
   if (!apiKey) {
     throw createError({ statusCode: 401, statusMessage: 'Falta la llave de dispositivo (x-api-key)' });
   }
-  const db = getDb();
-  const device = db
-    .prepare('SELECT id, name FROM devices WHERE api_key = ?')
-    .get(apiKey) as { id: string; name: string } | undefined;
+  const db = await getDb();
+  const rows = await db<{ id: string; name: string }[]>`
+    SELECT id, name FROM devices WHERE api_key = ${apiKey}
+  `;
+  const device = rows[0];
 
   if (!device) {
     throw createError({ statusCode: 401, statusMessage: 'Dispositivo no autorizado' });

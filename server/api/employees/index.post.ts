@@ -1,4 +1,4 @@
-import { getDb, newId, nowIso } from '../../utils/db';
+import { getDb, newId } from '../../utils/db';
 import { requireAdmin } from '../../utils/auth';
 
 interface EmployeeInput {
@@ -21,25 +21,20 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'employeeCode y fullName son requeridos' });
   }
 
-  const db = getDb();
+  const db = await getDb();
   const id = newId();
 
   try {
-    db.prepare(
-      `INSERT INTO employees (id, employee_code, full_name, role, department, email, biometric_id, active, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)`
-    ).run(
-      id,
-      employeeCode,
-      fullName,
-      body.role?.trim() || 'Enfermera/o',
-      body.department?.trim() || 'Enfermería',
-      body.email?.trim() || null,
-      body.biometricId?.trim() || null,
-      nowIso()
-    );
+    await db`
+      INSERT INTO employees (id, employee_code, full_name, role, department, email, biometric_id, active)
+      VALUES (
+        ${id}, ${employeeCode}, ${fullName},
+        ${body.role?.trim() || 'Enfermera/o'}, ${body.department?.trim() || 'Enfermería'},
+        ${body.email?.trim() || null}, ${body.biometricId?.trim() || null}, true
+      )
+    `;
   } catch (err: any) {
-    if (String(err?.message || '').includes('UNIQUE')) {
+    if (err?.code === '23505') {
       throw createError({
         statusCode: 409,
         statusMessage: 'El código de empleado o el ID biométrico ya existen',

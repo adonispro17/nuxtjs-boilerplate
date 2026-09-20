@@ -1,4 +1,4 @@
-import { getDb, newId, nowIso } from './db';
+import { getDb, newId } from './db';
 
 export type AttendanceSource = 'manual' | 'biometric';
 export type AttendanceType = 'in' | 'out';
@@ -8,40 +8,35 @@ interface OpenRecord {
   clockInAt: string;
 }
 
-function getOpenRecord(employeeId: string): OpenRecord | null {
-  const db = getDb();
-  const row = db
-    .prepare(
-      `SELECT id, clock_in_at as clockInAt FROM attendance_records
-       WHERE employee_id = ? AND clock_out_at IS NULL
-       ORDER BY clock_in_at DESC LIMIT 1`
-    )
-    .get(employeeId) as OpenRecord | undefined;
-  return row || null;
+async function getOpenRecord(employeeId: string): Promise<OpenRecord | null> {
+  const db = await getDb();
+  const rows = await db<OpenRecord[]>`
+    SELECT id, clock_in_at FROM attendance_records
+    WHERE employee_id = ${employeeId} AND clock_out_at IS NULL
+    ORDER BY clock_in_at DESC LIMIT 1
+  `;
+  return rows[0] || null;
 }
 
-export function findEmployeeByBiometricId(biometricId: string) {
-  const db = getDb();
-  return db
-    .prepare(
-      `SELECT id, full_name as fullName, employee_code as employeeCode, active
-       FROM employees WHERE biometric_id = ?`
-    )
-    .get(biometricId) as
-    | { id: string; fullName: string; employeeCode: string; active: number }
-    | undefined;
+export async function findEmployeeByBiometricId(biometricId: string) {
+  const db = await getDb();
+  const rows = await db<{ id: string; fullName: string; employeeCode: string; active: boolean }[]>`
+    SELECT id, full_name, employee_code, active
+    FROM employees WHERE biometric_id = ${biometricId}
+  `;
+  return rows[0];
 }
 
-export function registerAttendanceEvent(params: {
+export async function registerAttendanceEvent(params: {
   employeeId: string;
   source: AttendanceSource;
   deviceId?: string | null;
   type?: AttendanceType;
   notes?: string | null;
 }) {
-  const db = getDb();
+  const db = await getDb();
   const { employeeId, source, deviceId = null, notes = null } = params;
-  const open = getOpenRecord(employeeId);
+  const open = await getOpenRecord(employeeId);
   const requestedType = params.type;
 
   if (requestedType === 'in' && open) {
@@ -60,19 +55,18 @@ export function registerAttendanceEvent(params: {
   const type: AttendanceType = requestedType || (open ? 'out' : 'in');
 
   if (type === 'out' && open) {
-    db.prepare(
-      `UPDATE attendance_records
-       SET clock_out_at = ?, clock_out_source = ?, clock_out_device_id = ?
-       WHERE id = ?`
-    ).run(nowIso(), source, deviceId, open.id);
+    await db`
+      UPDATE attendance_records
+      SET clock_out_at = now(), clock_out_source = ${source}, clock_out_device_id = ${deviceId}
+      WHERE id = ${open.id}
+    `;
     return { type: 'out' as const, recordId: open.id };
   }
 
   const id = newId();
-  db.prepare(
-    `INSERT INTO attendance_records
-      (id, employee_id, clock_in_at, clock_in_source, clock_in_device_id, notes, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`
-  ).run(id, employeeId, nowIso(), source, deviceId, notes, nowIso());
+  await db`
+    INSERT INTO attendance_records (id, employee_id, clock_in_at, clock_in_source, clock_in_device_id, notes)
+    VALUES (${id}, ${employeeId}, now(), ${source}, ${deviceId}, ${notes})
+  `;
   return { type: 'in' as const, recordId: id };
 }

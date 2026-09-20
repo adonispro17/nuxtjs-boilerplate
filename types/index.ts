@@ -13,7 +13,7 @@ export interface Employee {
   department: string;
   email: string | null;
   biometricId: string | null;
-  active: number;
+  active: boolean;
   createdAt: string;
 }
 

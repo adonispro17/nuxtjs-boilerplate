@@ -1,22 +1,17 @@
 import { getDb } from '../../utils/db';
 
-export default defineEventHandler(() => {
-  const db = getDb();
-  const startOfDay = new Date();
-  startOfDay.setHours(0, 0, 0, 0);
+export default defineEventHandler(async () => {
+  const db = await getDb();
 
-  const records = db
-    .prepare(
-      `SELECT ar.id, ar.employee_id as employeeId, e.full_name as employeeName,
-              e.employee_code as employeeCode, ar.clock_in_at as clockInAt,
-              ar.clock_out_at as clockOutAt, ar.clock_in_source as clockInSource,
-              ar.clock_out_source as clockOutSource
-       FROM attendance_records ar
-       JOIN employees e ON e.id = ar.employee_id
-       WHERE ar.clock_in_at >= ?
-       ORDER BY ar.clock_in_at DESC`
-    )
-    .all(startOfDay.toISOString());
+  const records = await db`
+    SELECT ar.id, ar.employee_id, e.full_name as employee_name,
+           e.employee_code, ar.clock_in_at, ar.clock_out_at,
+           ar.clock_in_source, ar.clock_out_source
+    FROM attendance_records ar
+    JOIN employees e ON e.id = ar.employee_id
+    WHERE ar.clock_in_at >= date_trunc('day', now())
+    ORDER BY ar.clock_in_at DESC
+  `;
 
   return { records };
 });

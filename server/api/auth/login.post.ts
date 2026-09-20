@@ -10,18 +10,19 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Usuario y contraseña son requeridos' });
   }
 
-  const db = getDb();
-  const user = db
-    .prepare('SELECT id, username, password_hash as passwordHash, role, employee_id as employeeId FROM users WHERE username = ?')
-    .get(username) as
-    | { id: string; username: string; passwordHash: string; role: string; employeeId: string | null }
-    | undefined;
+  const db = await getDb();
+  const rows = await db<
+    { id: string; username: string; passwordHash: string; role: string; employeeId: string | null }[]
+  >`
+    SELECT id, username, password_hash, role, employee_id FROM users WHERE username = ${username}
+  `;
+  const user = rows[0];
 
   if (!user || !verifyPassword(password, user.passwordHash)) {
     throw createError({ statusCode: 401, statusMessage: 'Usuario o contraseña incorrectos' });
   }
 
-  const session = createSession(user.id);
+  const session = await createSession(user.id);
   setCookie(event, SESSION_COOKIE, session.token, {
     httpOnly: true,
     sameSite: 'lax',

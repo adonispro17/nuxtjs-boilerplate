@@ -1,4 +1,4 @@
-import { getDb, nowIso } from '../../utils/db';
+import { getDb } from '../../utils/db';
 import { verifyDeviceApiKey } from '../../utils/auth';
 import { findEmployeeByBiometricId, registerAttendanceEvent } from '../../utils/attendance';
 
@@ -18,7 +18,7 @@ interface BiometricPayload {
  */
 export default defineEventHandler(async (event) => {
   const apiKey = getHeader(event, 'x-api-key');
-  const device = verifyDeviceApiKey(apiKey);
+  const device = await verifyDeviceApiKey(apiKey);
 
   const body = await readBody<BiometricPayload>(event);
   const biometricId = body?.biometricId?.trim();
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'biometricId es requerido' });
   }
 
-  const employee = findEmployeeByBiometricId(biometricId);
+  const employee = await findEmployeeByBiometricId(biometricId);
   if (!employee) {
     throw createError({
       statusCode: 404,
@@ -37,10 +37,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: 'El empleado está inactivo' });
   }
 
-  const db = getDb();
-  db.prepare('UPDATE devices SET last_seen_at = ? WHERE id = ?').run(nowIso(), device.id);
+  const db = await getDb();
+  await db`UPDATE devices SET last_seen_at = now() WHERE id = ${device.id}`;
 
-  const result = registerAttendanceEvent({
+  const result = await registerAttendanceEvent({
     employeeId: employee.id,
     source: 'biometric',
     deviceId: device.id,

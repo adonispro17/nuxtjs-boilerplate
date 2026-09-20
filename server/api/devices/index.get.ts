@@ -1,14 +1,12 @@
 import { getDb } from '../../utils/db';
 import { requireAdmin } from '../../utils/auth';
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   requireAdmin(event);
-  const db = getDb();
-  const devices = db
-    .prepare(
-      `SELECT id, name, location, api_key as apiKey, last_seen_at as lastSeenAt, created_at as createdAt
-       FROM devices ORDER BY created_at DESC`
-    )
-    .all();
+  const db = await getDb();
+  const devices = await db`
+    SELECT id, name, location, api_key, last_seen_at, created_at
+    FROM devices ORDER BY created_at DESC
+  `;
   return { devices };
 });
